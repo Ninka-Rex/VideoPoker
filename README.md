@@ -1,5 +1,7 @@
 ﻿# IGT video poker emulators
 
+![Preview](preview.png)
+
 Browser emulators that run the original firmware of IGT gaming machines: Game King (Intel i960),
 Player's Edge / Player's Edge Plus (80C32) and Draw 80 Poker (8039).
 
