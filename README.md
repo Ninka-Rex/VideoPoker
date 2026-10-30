@@ -7,5 +7,4 @@ Player's Edge / Player's Edge Plus (80C32) and Draw 80 Poker (8039).
 
 ## Play
 
-Open `index.html` in a browser. It runs straight from disk, no server or install needed.
-(It also works on GitHub Pages.)
+Visit https://igt.stellar.moe/ or download the repository and open `index.html` in a browser. It runs straight from disk, no server or install needed.
