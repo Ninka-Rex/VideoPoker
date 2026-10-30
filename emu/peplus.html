@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Player's Edge Plus</title>
+<link rel="stylesheet" href="theme.css">
+<style>
+  .wrap { --w: min(1100px, calc(100vw - 330px), calc((100vh - 220px) * 4 / 3)); }
+</style>
+</head>
+<body>
+<div class="site-bar"><a href="index.html">&larr; Library</a><b>Player's Edge Plus</b><span class="sp"></span><small>IGT firmware emulators</small></div>
+<div id="loader">
+  <div class="box">
+    <h1 id="title">Player's Edge Plus</h1>
+    <span id="msg">Drop the ROM files for one game here:</span><br>
+    <small>program ROM (u58/u68) · mr/mg/mb/mx graphics · cap colour PROM</small>
+    <div id="status"></div>
+    <small>ROMs stay in this browser; nothing is uploaded.</small>
+  </div>
+</div>
+
+<div class="wrap">
+  <a class="vm-back" href="index.html">&larr; Library</a>
+  <header class="vm-head"><h1 id="vm-title">Player's Edge Plus</h1></header>
+  <div class="stage">
+    <div class="game">
+      <canvas id="scr" width="320" height="200"></canvas>
+      <div class="row" id="row1"></div>
+      <div class="row" id="row2"></div>
+      <div class="hint" id="hint"></div>
+    </div>
+    <aside class="side">
+      <h3>Machine</h3>
+      <div class="row ops">
+        <button id="coin">🪙 Insert Coin</button>
+        <button id="door">Upper Door</button>
+        <button data-btn="jackpot">Jackpot Reset</button>
+        <button data-btn="test">Self Test</button>
+        <button id="reset">Power Cycle</button>
+      </div>
+      <h3>Bill acceptor</h3>
+      <div class="row ops bills" id="bills"></div>
+      <h3>Volume</h3>
+      <div class="volume"></div>
+      <div id="rcpt"></div>
+    </aside>
+  </div>
+  <div class="info" id="info"></div>
+  <div class="paytable" id="paytable"></div>
+</div>
+
+<script src="mcs51.js"></script>
+<script src="i2cmem.js"></script>
+<script src="ay8910.js"></script>
+<script src="pebill.js"></script>
+<script src="peplus.js"></script>
+<script src="pesetchip.js"></script>
+<script src="peroms.js"></script>
+<script src="paytables.js"></script>
+<script src="common.js"></script>
+<script>
+(() => {
+'use strict';
+const { kvGet, kvSet, pushAudio, InfoPanel, ReceiptsPanel, hex } = Common;
+const $ = id => document.getElementById(id);
+const loader = $('loader'), status = $('status');
+
+// Panel layouts. Each button: [label, key name, keyboard key]
+const FAMILIES = {
+  poker: { r1: [['Hold', 'hold1', '1'], ['Hold', 'hold2', '2'], ['Hold', 'hold3', '3'], ['Hold', 'hold4', '4'], ['Hold', 'hold5', '5']] },
+  blackjack: { deal: 'Deal / Hit', r1: [['Surrender', 'hold1', '1'], ['Stand', 'hold2', '2'], ['Insurance', 'hold3', '3'], ['Double Down', 'hold4', '4'], ['Split', 'hold5', '5']] },
+  slots: { deal: 'Spin', r1: [] },
+  keno: { deal: 'Start', r1: [['Erase', 'hold5', '5']] },
+};
+const MAIN = [['Change', 'change', 'y'], ['💵 Cash Out', 'cashout', 'x'], ['Play Credit', 'playcredit', 'q'], ['Max Bet', 'maxbet', 'w'], ['Deal / Draw', 'deal', ' ']];
+
+let m = null, roms = null, family = 'poker', setId = '', romLabel = '', opts = {};
+const cv = $('scr'), ctx = cv.getContext('2d');
+const img = ctx.createImageData(320, 200), px = new Uint32Array(img.data.buffer);
+const keyMap = { '1': 'hold1', '2': 'hold2', '3': 'hold3', '4': 'hold4', '5': 'hold5', ' ': 'deal', enter: 'deal',
+                 q: 'playcredit', w: 'maxbet', x: 'cashout', y: 'change', k: 'test', l: 'jackpot' };
+
+// Keno marks numbers with a light pen: point at the screen and click (press and release)
+const penPos = e => { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) / r.width * 320, (e.clientY - r.top) / r.height * 200]; };
+cv.addEventListener('pointerdown', e => { if (!m) return; const [x, y] = penPos(e); m.setPen(x, y, true); cv.setPointerCapture(e.pointerId); });
+cv.addEventListener('pointermove', e => { if (!m || !(e.buttons & 1)) return; const [x, y] = penPos(e); m.setPen(x, y, true); });
+const penUp = () => { if (m && m.pen) m.setPen(m.pen.x, m.pen.y, false); };
+cv.addEventListener('pointerup', penUp); cv.addEventListener('pointercancel', penUp);
+function buildPanel() {
+  const fam = FAMILIES[family] || FAMILIES.poker;
+  const icon = { slots: '🎰 ', keno: '🎯 ' }[family] || '🃏 ';
+  const main = MAIN.map(b => b[1] === 'deal' ? [icon + (fam.deal || b[0]), b[1], b[2]] : b);
+  for (const [id, list] of [['row1', fam.r1], ['row2', main]]) {
+    const row = $(id); row.textContent = '';
+    row.style.gridTemplateColumns = 'repeat(' + Math.max(list.length, 1) + ', 1fr)';
+    row.style.display = list.length ? 'grid' : 'none';
+    for (const [label, key] of list) { const b = document.createElement('button'); b.textContent = label; b.dataset.btn = key; if (key === 'deal') b.className = 'primary'; row.append(b); }
+  }
+  document.querySelectorAll('[data-btn]').forEach(el => {
+    const n = el.dataset.btn;
+    el.addEventListener('pointerdown', e => { e.preventDefault(); el.classList.add('down'); press(n); });
+    const up = () => { el.classList.remove('down'); release(n); };
+    el.addEventListener('pointerup', up); el.addEventListener('pointerleave', up);
+  });
+  $('hint').innerHTML = '1–5 ' + (family === 'blackjack' ? 'surrender / stand / insurance / double / split' : 'hold') +
+    ' · Space ' + (family === 'blackjack' ? 'deal / hit' : family === 'slots' ? 'spin' : 'deal / draw') + ' · Q play credit · W max bet · X cash out · Y change · C coin · B largest bill<br>Operator: O upper door · K self test · L jackpot reset' + (family === 'keno' ? '<br>Keno: click a number on the screen to mark it (the light pen), then Deal / Spin / Start' : '');
+}
+
+// buttons stay down for a few frames so the firmware's debounce sees them
+const held = new Map(), pending = [];
+function press(n) { if (!m) return; m.press(n, true); held.set(n, m.frame); }
+function release(n) {
+  if (!m || !held.has(n)) return;
+  const wait = Math.max(0, 6 - (m.frame - held.get(n))); held.delete(n);
+  const f = () => { if (!held.has(n)) m.press(n, false); };
+  if (wait) pending.push([m.frame + wait, f]); else f();
+}
+$('coin').onclick = () => m && m.insertCoin();
+const doorBtn = $('door');
+doorBtn.onclick = () => { if (!m) return; const o = m.doorUpperClosed; m.setDoor(o); doorBtn.classList.toggle('on', o); doorBtn.textContent = o ? 'Upper Door: Open' : 'Upper Door'; };
+$('reset').onclick = () => { saveNV(); boot(); };
+document.addEventListener('keydown', e => {
+  const k = e.key.toLowerCase();
+  if (e.repeat) { if (keyMap[k]) e.preventDefault(); return; }
+  if (keyMap[k]) { e.preventDefault(); press(keyMap[k]); }
+  else if (k === 'c') m && m.insertCoin();
+  else if (k === 'b') m && m.insertBill(Math.max(...m.bv.accepts));
+  else if (k === 'o') doorBtn.click();
+});
+document.addEventListener('keyup', e => { const k = e.key.toLowerCase(); if (keyMap[k]) release(keyMap[k]); });
+
+// ---- printed receipts (ticket printer on DUART channel B) ----
+// Printable text and line feeds are collected; byte 0x15 ends a ticket (a pause of 3 s does too).
+const receipts = new ReceiptsPanel($('rcpt'));
+let paper = '', paperAt = 0;
+function onPrint(ch, v) {
+  if (ch !== 1) return;
+  if (v === 0x15) { endTicket(); return; }
+  if (v === 0x0a) paper += '\n'; else if (v >= 0x20 && v < 0x7f) paper += String.fromCharCode(v); else return;
+  paperAt = performance.now();
+}
+function endTicket() { const t = paper; paper = ''; receipts.add(t); }
+setInterval(() => { if (paper && performance.now() - paperAt > 3000) endTicket(); }, 1000);
+
+// ---- machine lifecycle ----
+let turbo = false;
+const loading = Common.screenLoading($('scr'));
+const flashReturned = () => loading.notice('Coin returned: the game has locked out its coin acceptor');
+// Montana (mg programs) v2: states saved before the printer/link/coin fixes are stuck at "recoverable CMOS data"
+const nvKey = () => 'pe:' + setId + (/^mg/i.test((roms && roms.name) || '') ? ':v2' : '');
+async function boot() {
+  const saved = await kvGet(nvKey());
+  const haveSaved = saved instanceof Uint8Array && saved.length === 0x2200;
+  let chipNV = null;
+  if (!haveSaved && opts.setchip && opts.setRoms) {
+    // this program won't run until IGT's set chip has stored a denomination: run the chip on the same memory first
+    // (before the machine exists, so nothing is running while it happens)
+    status.textContent = 'Running the set chip…';
+    await new Promise(r => setTimeout(r, 30));
+    chipNV = PESetChip.makeSetChipNV(PEPlus, roms, opts.setRoms, { mode: opts.mode });
+    status.textContent = '';
+  }
+  m = new PEPlus(roms);
+  m.onAudio = (L, R) => { if (!turbo) pushAudio(L, R); };
+  m.onCoinReturn = flashReturned;
+  m.onPrinter = onPrint; paper = '';
+  if (haveSaved) m.setNV(saved);
+  else if (chipNV) { m.setNV(chipNV); m.startRecover(); turbo = true; }
+  else { m.startAutoSetup(opts.mode); turbo = true; }
+  doorBtn.classList.remove('on'); doorBtn.textContent = 'Upper Door';
+  // bill buttons: the denominations this game's validator protocol can send
+  const row = $('bills'); row.textContent = '';
+  for (const d of m.bv.accepts) { const b = document.createElement('button'); b.textContent = '$' + d + ' Bill'; b.onclick = () => m.insertBill(d); row.append(b); }
+  row.classList.add('off'); row.title = 'This program has not switched its bill validator on';
+}
+function saveNV() { if (m && !turbo) kvSet(nvKey(), m.getNV()); }
+
+let last = 0, acc = 0, nSave = 0;
+// the validator input is only live once the game itself enables it (some programs never do)
+setInterval(() => { const r = $('bills'); if (m && r) { const on = !!m.bv.everEnabled; r.classList.toggle('off', !on); r.title = on ? '' : 'This program has not switched its bill validator on (coin-only in its current setup)'; } }, 500);
+const info = new InfoPanel($('info'), () => m ? [['Machine'], ['rom', romLabel], ['setup', turbo ? 'initialising…' : 'done']].concat(m.info()) : [], () => m && { coinsIn: m.coinsIn, coinsOut: m.coinsOut, coinsReturned: m.coinsReturned || 0 });
+function step() {
+  const t0 = performance.now();
+  m.runFrame();
+  for (let i = pending.length - 1; i >= 0; i--) if (pending[i][0] <= m.frame) { const f = pending[i][1]; pending.splice(i, 1); f(); }
+  info.tick(m.frame, performance.now() - t0);
+}
+function tick() {
+  if (!m) return;
+  const t = performance.now();
+  if (!last) last = t;
+  let n = 0;
+  if (turbo) {
+    while (performance.now() - t < 14 && turbo) { step(); n++; if (!m.setupBusy) { turbo = false; saveNV(); } }
+    acc = 0;
+  } else {
+    acc += Math.min(100, t - last);
+    while (acc >= 1000 / 60 && n < 4) { step(); acc -= 1000 / 60; n++; }
+  }
+  last = t;
+  if (n) { m.render(px); ctx.putImageData(img, 0, 0); }
+  if (!turbo) loading.done();   // stays up through the one-off automatic set-up of a fresh game
+  if (++nSave % 600 === 0) saveNV();
+}
+setInterval(tick, 8);
+document.addEventListener('visibilitychange', () => { if (document.hidden) saveNV(); });
+window.addEventListener('pagehide', saveNV);
+window.onerror = (msg, src, line) => { status.textContent = msg + ' @' + line; };
+
+async function start(files, label, id, o) {
+  opts = o || {};
+  roms = buildPEPlusRoms(files);
+  if (!roms) { status.textContent = 'Not a complete Player\'s Edge ROM set (need program, 4 graphics, colour PROM).'; return false; }
+  family = peFamily(roms.name); romLabel = label || roms.name; setId = id || roms.name;
+  Common.renderPayTable($('paytable'), Common.payMachine(setId + ' ' + roms.name));
+  document.title = romLabel; loader.style.display = 'none';
+  await receipts.load(setId);
+  buildPanel(); await boot(); return true;
+}
+async function addFiles(list) {
+  const files = [];
+  for (const f of list) files.push({ name: f.name, data: new Uint8Array(await f.arrayBuffer()) });
+  start(files);
+}
+$('loader').ondragover = e => e.preventDefault();
+$('loader').ondrop = e => { e.preventDefault(); addFiles(e.dataTransfer.files); };
+
+(async () => {
+  const want = new URLSearchParams(location.search).get('set');
+  if (!want) return;
+  try {
+    const lib = await Common.library();
+    const s = lib.peplus.find(x => x.dir + '/' + x.prog === want);
+    if (!s) throw new Error('set not found: ' + want);
+    $('title').textContent = s.name;
+    const files = [];
+    for (const f of s.files) {
+      files.push({ name: f.split('/').pop(), data: await Common.romBytes(f) });
+    }
+    let setRoms = null;
+    if (s.setchip && lib.setchip) {
+      const sf = [];
+      for (const f of lib.setchip.files) sf.push({ name: f.split('/').pop(), data: await Common.romBytes(f) });
+      setRoms = buildPEPlusRoms(sf);
+    }
+    await start(files, s.name, want, { mode: s.mode, setchip: !!s.setchip, setRoms });
+  } catch (e) { status.textContent = 'Auto-load failed: ' + e.message; }
+})();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IGT Emulator Library</title>
+<link rel="stylesheet" href="theme.css">
+</head>
+<body>
+<div class="site-bar"><b>IGT Emulator Library</b><span class="sp"></span><small>firmware running on emulated hardware</small></div>
+<main class="lib">
+  <h1>IGT video poker emulators</h1>
+  <p class="lead">The original firmware, running on emulated hardware. Every ROM is bundled with this page, so it works straight from disk. Point at a game to see what it looks like; click to play.</p>
+  <div id="status"></div>
+  <h2>Game King - Intel i960</h2>
+  <div id="gk" class="list"></div>
+  <h2>Player's Edge - 80C32</h2>
+  <div id="pe" class="list"></div>
+  <h2>Player's Edge Plus - 80C32</h2>
+  <div id="pep" class="list"></div>
+  <h2>Draw 80 Poker - 8039</h2>
+  <div id="d80" class="list"></div>
+  <details class="quiet"><summary>Pay tables and payback</summary><div id="pays"></div></details>
+</main>
+<div id="preview"><img alt=""><div></div></div>
+<script src="paytables.js"></script>
+<script src="common.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const pv = $('preview'), pvImg = pv.querySelector('img'), pvText = pv.querySelector('div');
+function item(parent, href, title, sub, key, preview, pb, year) {
+  const a = document.createElement('a'); a.className = 'item'; a.href = href;
+  const t = document.createElement('span'); t.textContent = title;
+  if (year) { const y = document.createElement('em'); y.className = 'tag'; y.textContent = year; y.title = 'Year of manufacture (newest copyright in the program chips)'; t.append(y); }
+  const s = document.createElement('small');
+  const pay = Common.paySummary(Common.payMachine(key)) || (pb ? 'payback ' + pb.toFixed(2) + '%' : '');
+  s.textContent = (pay ? pay + ' - ' : '') + sub;
+  a.append(t, s); parent.append(a);
+  if (preview) {
+    a.addEventListener('mouseenter', () => { pvImg.src = preview; pvText.textContent = title; pv.style.display = 'block'; });
+    a.addEventListener('mousemove', e => {
+      const w = pv.offsetWidth, h = pv.offsetHeight;
+      pv.style.left = Math.min(e.clientX + 18, innerWidth - w - 8) + 'px';
+      pv.style.top = Math.max(8, Math.min(e.clientY - h / 2, innerHeight - h - 8)) + 'px';
+    });
+    a.addEventListener('mouseleave', () => { pv.style.display = 'none'; });
+  }
+}
+const nice = s => s.dir.replace(/^ROMs\/[^/]+\//, '').split('/').join('  /  ');
+const ORDER = ["Early (1982-85)", "Player's Edge, original board (1987)", "Player's Choice (1987)", "Player's Edge Plus (1987)", "Player's Edge Plus (1994-96)", 'Superboard (1995)'];
+const rank = sec => { const i = ORDER.findIndex(o => (sec || '').startsWith(o)); return i < 0 ? 99 : i; };
+Common.library().then(lib => {
+  for (const g of lib.gameking) item($('gk'), 'gameking.html?set=' + g.id, g.title, g.id + (g.nv || g.id === 'gkigt4' ? '' : ' - needs set-up'), g.id, g.preview, null, g.year);
+  for (const d of (lib.draw80 || [])) item($('d80'), 'draw80.html?dir=' + encodeURIComponent(d.dir), d.game || d.name, d.short || 'pm0 + pm1', d.dir, d.preview, null, d.year);
+  const sets = lib.peplus.slice().sort((a, b) => rank(a.section) - rank(b.section) || (a.section || '').localeCompare(b.section || '') || (a.game || a.name).localeCompare(b.game || b.name) || (b.payback || 0) - (a.payback || 0));
+  // the original boards and the Plus boards (and Superboard) are listed in separate boxes
+  const isPlus = s => !/^(Early|Player's Edge, original|Player's Choice)/.test(s.section || '');   // unsorted programs are Plus-board ones
+  const listFor = s => $(isPlus(s) ? 'pep' : 'pe');
+  if (!sets.some(s => !isPlus(s))) $('pe').innerHTML = "<p>No Player's Edge ROM sets found.</p>";
+  if (!sets.some(isPlus)) $('pep').innerHTML = "<p>No Player's Edge Plus ROM sets found.</p>";
+  let sec = null;
+  for (const s of sets) {
+    const sc = s.section || 'Other';
+    if (sc !== sec) { sec = sc; const h = document.createElement('h3'); h.className = 'subhead';
+      const yr = /\s*\((\d{4}(?:-\d{2,4})?)\)/.exec(sc); h.textContent = yr ? sc.replace(yr[0], '') : sc;
+      if (yr) { const t = document.createElement('em'); t.className = 'tag'; t.textContent = yr[1]; h.append(t); }
+      listFor(s).append(h); }
+    item(listFor(s), 'peplus.html?set=' + encodeURIComponent(s.dir + '/' + s.prog), s.game || nice(s), (s.short || s.prog), s.dir + '/' + s.prog, s.preview, s.payback);
+  }
+  // pay tables for every machine, one fold-out each
+  const box = $('pays');
+  const p = document.createElement('p'); p.textContent = "Pay tables were read off the emulated machines. Paybacks for the video poker games are exact (perfect strategy, 5 coins bet); slot and blackjack figures are IGT's own, as recorded by MAME. Other paybacks listed above are MAME's figures for each program and were not checked here."; box.append(p);
+  for (const m of window.PAYTABLES.machines) {
+    const d = document.createElement('details'), sm = document.createElement('summary');
+    sm.textContent = m.title + (Common.paySummary(m) ? ' — ' + Common.paySummary(m) : '');
+    const body = document.createElement('div'); body.className = 'paytable'; Common.renderPayTable(body, m, false);
+    d.append(sm, body); box.append(d);
+  }
+}).catch(() => { $('status').textContent = 'Library not built yet: run  node build_bundle.js  in the emu folder.'; });
+</script>
+</body>
+</html>

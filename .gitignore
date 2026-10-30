@@ -1,0 +1,8 @@
+emu/states/
+emu/scratch/
+scratch/
+*.state
+__pycache__/
+node_modules/
+Thumbs.db
+desktop.ini

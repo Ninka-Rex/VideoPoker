@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Game King</title>
+<link rel="stylesheet" href="theme.css">
+<style>
+  .wrap { --w: min(1100px, calc(100vw - 330px), calc((100vh - 200px) * 4 / 3)); }
+  canvas { cursor: pointer; touch-action: none; }
+  .holds { grid-template-columns: repeat(5, 1fr); }
+  .main { grid-template-columns: repeat(4, 1fr); }
+</style>
+</head>
+<body>
+<div class="site-bar"><a href="index.html">&larr; Library</a><b>Game King</b><span class="sp"></span><small>IGT firmware emulators</small></div>
+<div id="loader">
+  <div class="box">
+    <h1>IGT Game King — v4.x</h1>
+    Drop the 9 ROM files here (or <label style="text-decoration:underline;cursor:pointer">choose them<input id="pick" type="file" multiple hidden></label>):<br>
+    <small>m0000527 base · g0001777 gme1/gme2 · c0000330 cg1/cg2/plx1/plx2 · swc00046 snd1/snd2</small>
+    <div id="status"></div>
+    <small>ROMs stay in this browser (IndexedDB); nothing is uploaded.</small>
+  </div>
+</div>
+
+<div class="wrap">
+  <a class="vm-back" href="index.html">&larr; Library</a>
+  <header class="vm-head"><h1 id="vm-title">Game King</h1></header>
+  <div class="stage">
+    <div class="game">
+      <canvas id="scr" width="640" height="480"></canvas>
+      <div class="row holds">
+        <button data-btn="hold1">Hold</button><button data-btn="hold2">Hold</button><button data-btn="hold3">Hold</button>
+        <button data-btn="hold4">Hold</button><button data-btn="hold5">Hold</button>
+      </div>
+      <div class="row main">
+        <button data-btn="betone">Bet One</button>
+        <button data-btn="betmax">Bet Max</button>
+        <button data-btn="deal" class="primary">🃏 Deal / Draw</button>
+        <button data-btn="cashout">💵 Cash Out</button>
+      </div>
+      <div class="hint">
+        Click the screen to touch it · 1–5 hold · Space deal/draw · Q bet one · W bet max · C coin · X cash out<br>
+        <span id="billhint" hidden>B $100 bill · </span>Operator: D main door · K reset key · T test switch
+      </div>
+    </div>
+    <aside class="side">
+      <h3>Machine</h3>
+      <div class="row ops">
+        <button id="coin">🪙 Insert Coin</button>
+        <button id="door">Main Door</button>
+        <button data-btn="key">Reset Key</button>
+        <button data-btn="test">Test Switch</button>
+        <button id="reset">Power Cycle</button>
+      </div>
+      <h3>Bill acceptor</h3>
+      <div class="row ops bills" id="bills" hidden>
+        <button data-bill="100">$1 Bill</button><button data-bill="500">$5 Bill</button><button data-bill="1000">$10 Bill</button>
+        <button data-bill="2000">$20 Bill</button><button data-bill="5000">$50 Bill</button><button data-bill="10000">$100 Bill</button>
+      </div>
+      <h3>Volume</h3>
+      <div class="volume"></div>
+      <div id="rcpt"></div>
+    </aside>
+  </div>
+  <div class="info" id="info"></div>
+  <div class="paytable" id="paytable"></div>
+</div>
+
+<script>window.NO_COMMON_AUDIO = true;</script>
+<script src="paytables.js"></script>
+<script src="common.js"></script>
+<script src="gkroms.js"></script>
+<script src="i960.js"></script>
+<script src="gameking.js"></script>
+<script src="opll.js"></script>
+<script src="sashost.js"></script>
+<script src="devices.js"></script>
+<script src="configured-nv.js"></script>
+<script>
+(() => {
+'use strict';
+
+// ---------------- ROM storage ----------------
+const ROMS = {
+  base: /m0000527/i, gme1: /gme1/i, gme2: /gme2/i, plx1: /plx1/i, plx2: /plx2/i,
+  cg1: /cg1/i, cg2: /cg2/i, snd1: /snd1/i, snd2: /snd2/i,
+};
+const SIZES = { base: 0x80000, gme1: 0x100000, gme2: 0x100000, plx1: 0x100000, plx2: 0x100000,
+                cg1: 0x80000, cg2: 0x80000, snd1: 0x100000, snd2: 0x100000 };
+
+function idb() {
+  return new Promise((res, rej) => {
+    const r = indexedDB.open('gameking', 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('kv');
+    r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+  });
+}
+const withTimeout = (p, ms) => Promise.race([p, new Promise(r => setTimeout(() => r(undefined), ms))]);
+async function kvGet(k) {
+  try {
+    const db = await withTimeout(idb(), 2000); if (!db) return undefined;
+    return await withTimeout(new Promise(r => { const q = db.transaction('kv').objectStore('kv').get(k); q.onsuccess = () => r(q.result); q.onerror = () => r(undefined); }), 3000);
+  } catch (e) { return undefined; }
+}
+async function kvSet(k, v) {
+  try { const db = await withTimeout(idb(), 2000); if (db) db.transaction('kv', 'readwrite').objectStore('kv').put(v, k); } catch (e) {}
+}
+
+const loading = Common.screenLoading(document.getElementById('scr'));
+const loader = document.getElementById('loader');
+const status = document.getElementById('status');
+const roms = {};
+
+async function addFiles(files) {
+  for (const f of files) {
+    for (const [k, re] of Object.entries(ROMS)) {
+      if (re.test(f.name) && !/ms\./i.test(f.name) && !/,nj/i.test(f.name)) {
+        const buf = new Uint8Array(await f.arrayBuffer());
+        if (buf.length === SIZES[k]) roms[k] = buf;
+      }
+    }
+  }
+  const missing = Object.keys(ROMS).filter(k => !roms[k]);
+  if (missing.length) { status.textContent = 'Still missing: ' + missing.join(', '); return; }
+  await kvSet('roms', roms);
+  start();
+}
+
+document.getElementById('pick').onchange = e => addFiles(e.target.files);
+loader.ondragover = e => { e.preventDefault(); loader.classList.add('drag'); };
+loader.ondragleave = () => loader.classList.remove('drag');
+loader.ondrop = e => { e.preventDefault(); loader.classList.remove('drag'); addFiles(e.dataTransfer.files); };
+
+// ---------------- machine ----------------
+let m = null;
+const cv = document.getElementById('scr');
+const ctx = cv.getContext('2d');
+const img = ctx.createImageData(640, 480);
+const px = new Uint32Array(img.data.buffer);
+
+function b64(s) { const b = atob(s); const u = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return u; }
+
+let setId = 'gkigt4', setTitle = 'Game King (v4.x)', shippedNV = null;
+// bump a set's version when its shipped NV changes, so browsers drop an older saved copy
+// (gkigt5p v4: printer, SAS address 1 and enhanced validation for ticket in / ticket out;
+//  gkigt4 v2: ships nv/gkigt4.nv like the other sets, with the bill validator on and the denomination set;
+//  v4.0 sets v3: SAS address 1 and enhanced validation now really set, so ticket in works)
+const NV_VER = { gkigt4: 3, gkigt5p: 4, gkigt43: 2, gkigt43n: 2, gkigt4ms: 3, gkigtez: 3, gkigtezms: 3 };
+const nvKey = () => 'nv512:' + setId + (NV_VER[setId] ? ':v' + NV_VER[setId] : '');
+
+async function boot() {
+  roms.nvSize = GK.nvSize(setId);
+  Object.assign(roms, GK.peripherals(setId));
+  m = new GameKing(roms);
+  installDevices(m);
+  const saved = await kvGet(nvKey());
+  const nv = saved instanceof Uint8Array && saved.length === m.NV_SIZE + 0x800 ? saved : shippedNV;
+  m.onAudio = pushAudio;
+  if (nv) m.setNV(nv);
+  m.reset();
+  if (m.printer) m.printer.onTicket = text => receipts.add(text);
+  document.getElementById('bills').hidden = !m.bv;
+  document.getElementById('billhint').hidden = !m.bv;
+}
+
+// bill validator (only sets whose options expect one, e.g. Triple-Five Play)
+function insertBill(cents) { if (m && m.bv) m.bv.insertBill(cents); }
+document.querySelectorAll('[data-bill]').forEach(b => { b.onclick = () => insertBill(+b.dataset.bill); });
+
+function saveNV() {
+  if (!m) return;
+  kvSet(nvKey(), m.getNV());
+}
+
+// ---------------- audio ----------------
+// The emulator produces 735 stereo samples per 60 Hz frame; an AudioWorklet plays
+// them from a small queue. Browsers only allow audio after a user gesture.
+let audio = null;
+const WORKLET = `
+class GKOut extends AudioWorkletProcessor {
+  constructor() { super(); this.q = []; this.cur = null; this.pos = 0;
+    this.port.onmessage = e => { this.q.push(e.data); if (this.q.length > 8) this.q.splice(0, this.q.length - 4); }; }
+  process(_, outputs) {
+    const [L, R] = outputs[0];
+    for (let i = 0; i < L.length; i++) {
+      if (!this.cur || this.pos >= this.cur.length) { this.cur = this.q.shift() || null; this.pos = 0; }
+      if (this.cur) { L[i] = this.cur[this.pos]; R[i] = this.cur[this.pos + 1]; this.pos += 2; } else { L[i] = R[i] = 0; }
+    }
+    return true;
+  }
+}
+registerProcessor('gk-out', GKOut);`;
+async function startAudio() {
+  if (audio) { if (audio.ctx.state === 'suspended') audio.ctx.resume(); return; }
+  try {
+    const ctx = new AudioContext({ sampleRate: 44100 });
+    const url = URL.createObjectURL(new Blob([WORKLET], { type: 'text/javascript' }));
+    await ctx.audioWorklet.addModule(url);
+    const node = new AudioWorkletNode(ctx, 'gk-out', { outputChannelCount: [2] });
+    const gain = ctx.createGain(); node.connect(gain); gain.connect(ctx.destination);
+    audio = { ctx, node }; Common.audio.ctx = ctx; Common.audio.gain = gain; Common.setVolume(Common.getVolume());
+  } catch (e) { console.log('audio unavailable', e); }
+}
+function pushAudio(L, R) {
+  if (!audio || audio.ctx.state !== 'running' || !m) return;
+  const buf = new Float32Array(L.length * 2);
+  for (let i = 0; i < L.length; i++) { buf[i * 2] = L[i]; buf[i * 2 + 1] = R[i]; }
+  audio.node.port.postMessage(buf, [buf.buffer]);
+}
+['pointerdown', 'keydown'].forEach(ev => document.addEventListener(ev, startAudio));
+
+// ---------------- inputs ----------------
+// Button bits in the SENET switch registers (index 0 = reg 0x28, 1 = reg 0x2a).
+const BTN = {
+  hold1: [0, 0x01], hold2: [0, 0x02], hold3: [0, 0x04], hold4: [0, 0x08], hold5: [0, 0x10],
+  deal: [0, 0x40], cashout: [0, 0x80], betmax: [1, 0x01], betone: [1, 0x02],
+};
+const held = new Map();   // name -> frame pressed (buttons must be held a few frames to be seen)
+function press(name) {
+  if (!m) return;
+  if (name === 'key' || name === 'test') { m.setSwitch(name, true); held.set(name, m.frame); return; }
+  const b = BTN[name]; if (!b) return;
+  m.senet.inputs[b[0]] |= b[1]; held.set(name, m.frame);
+}
+function release(name) {
+  if (!m || !held.has(name)) return;
+  const since = held.get(name); held.delete(name);
+  const doRelease = () => {
+    if (held.has(name)) return;
+    if (name === 'key' || name === 'test') m.setSwitch(name, false);
+    else { const b = BTN[name]; m.senet.inputs[b[0]] &= ~b[1]; }
+  };
+  const wait = Math.max(0, 6 - (m.frame - since));
+  if (wait) pending.push([m.frame + wait, doRelease]); else doRelease();
+}
+const pending = [];
+
+document.querySelectorAll('[data-btn]').forEach(el => {
+  const n = el.dataset.btn;
+  el.addEventListener('pointerdown', e => { e.preventDefault(); el.classList.add('down'); press(n); });
+  const up = () => { el.classList.remove('down'); release(n); };
+  el.addEventListener('pointerup', up); el.addEventListener('pointerleave', up);
+});
+document.getElementById('coin').onclick = () => m && m.insertCoin();
+const doorBtn = document.getElementById('door');
+doorBtn.onclick = () => { if (!m) return; const o = !m.doorOpen.mainDoor; m.setSwitch('mainDoor', o); doorBtn.classList.toggle('on', o); doorBtn.textContent = o ? 'Main Door: Open' : 'Main Door'; };
+document.getElementById('reset').onclick = () => { saveNV(); boot(); };
+
+const KEYS = { '1': 'hold1', '2': 'hold2', '3': 'hold3', '4': 'hold4', '5': 'hold5', ' ': 'deal', 'enter': 'deal',
+               'q': 'betone', 'w': 'betmax', 'x': 'cashout', 'k': 'key', 't': 'test' };
+document.addEventListener('keydown', e => {
+  const k = e.key.toLowerCase();
+  if (e.repeat) { if (KEYS[k]) e.preventDefault(); return; }
+  if (KEYS[k]) { e.preventDefault(); press(KEYS[k]); }
+  else if (k === 'c') m && m.insertCoin();
+  else if (k === 'b') insertBill(10000);
+  else if (k === 'd') doorBtn.click();
+});
+document.addEventListener('keyup', e => { const k = e.key.toLowerCase(); if (KEYS[k]) release(KEYS[k]); });
+
+// touch screen: mouse/finger -> touch controller reports in screen pixels
+let touching = false, lastTouch = null;
+function pos(e) {
+  const r = cv.getBoundingClientRect();
+  return [Math.max(0, Math.min(639, Math.round((e.clientX - r.left) / r.width * 640))),
+          Math.max(0, Math.min(479, Math.round((e.clientY - r.top) / r.height * 480)))];
+}
+cv.addEventListener('pointerdown', e => { if (!m) return; cv.setPointerCapture(e.pointerId); touching = true; lastTouch = pos(e); m.touch.touch(1, ...lastTouch); });
+cv.addEventListener('pointermove', e => { if (touching) lastTouch = pos(e); });
+cv.addEventListener('pointerup', e => { if (!touching) return; touching = false; m.touch.touch(3, ...pos(e)); });
+
+// ---------------- main loop ----------------
+// Real-time 60 Hz from power-on, so the firmware's colour test and "Initializing the system" screens play out as on the
+// machine. The black loading screen only covers fetching the ROMs and creating the machine.
+let last = 0, acc = 0, frameCount = 0;
+const info = new Common.InfoPanel(document.getElementById('info'), () => !m ? [] : [
+  ['Machine'], ['rom set', setId + ' · ' + setTitle],
+  ['boot', m.frame < 1500 ? 'starting ' + m.frame : 'running']].concat(m.debugInfo()), () => m && { coinsIn: m.coinsIn, coinsOut: m.coinsOut });
+
+// printed vouchers; with a SAS host a voucher (from the list or a saved .txt file) can be fed back in
+const receipts = new Common.ReceiptsPanel(document.getElementById('rcpt'), { redeem: text => redeemTicket(text) });
+function redeemTicket(text) {
+  if (!m || !m.bv) return 'this machine has no bill acceptor';
+  if (!m.sas) return 'this machine has no ticket validation host';
+  const code = (/(\d{18})/.exec(String(text).replace(/-/g, '')) || [])[1];
+  const amt = /\$\s*([\d,]+\.\d\d)/.exec(String(text));
+  if (!code) return 'no 18-digit validation number found';
+  // the host trusts the ticket file: it learns the voucher's value from it
+  if (amt) m.sas.register(code, Math.round(parseFloat(amt[1].replace(/,/g, '')) * 100));
+  return m.bv.insertTicket(code) ? true : 'bill acceptor busy';
+}
+function step() {
+  const t0 = performance.now();
+  if (touching && lastTouch && m.frame % 3 === 0 && m.touch.queue.length < 2) m.touch.touch(2, ...lastTouch);
+  m.runFrame();
+  for (let i = pending.length - 1; i >= 0; i--) if (pending[i][0] <= m.frame) { const f = pending[i][1]; pending.splice(i, 1); f(); }
+  info.tick(m.frame, performance.now() - t0);
+}
+function tick() {
+  if (!m) return;
+  const t = performance.now();
+  if (!last) last = t;
+  let n = 0;
+  acc += Math.min(100, t - last);
+  while (acc >= 1000 / 60 && n < 4) { step(); acc -= 1000 / 60; n++; }
+  last = t;
+  if (n) { m.render(px); ctx.putImageData(img, 0, 0); }
+  if (n) loading.done();
+  if (++frameCount % 300 === 0) saveNV();
+}
+setInterval(tick, 8);
+document.addEventListener('visibilitychange', () => { if (document.hidden) saveNV(); });
+window.addEventListener('pagehide', saveNV);
+
+window.onerror = (msg, src, line) => { document.getElementById('status').textContent = msg + ' @' + line; };
+async function start() {
+  loader.style.display = 'none';
+  await receipts.load(setId);
+  await boot();
+}
+
+(async () => {
+  const q = new URLSearchParams(location.search).get('set');
+  if (q) setId = q;
+  loader.style.display = 'none';   // the black loading screen covers the wait; the ROM box only comes back if auto-load fails
+  Common.renderPayTable(document.getElementById('paytable'), Common.payMachine(setId));
+  const cached = await kvGet('roms:' + setId) || (setId === 'gkigt4' ? await kvGet('roms') : undefined);
+  const haveRoms = cached && Object.keys(ROMS).every(k => cached[k]);
+  if (haveRoms) Object.assign(roms, cached);
+    try {
+    // the shipped NV (pre-set-up machine) is fetched every time, also when the ROMs come from the browser cache
+    const lib = await Common.library();
+    const s = lib.gameking.find(x => x.id === setId);
+    if (!s) throw new Error('set not found: ' + setId);
+    setTitle = s.title; document.title = s.title; document.querySelector('#loader h1').textContent = s.title;
+    if (s.nv) shippedNV = await Common.romBytes(s.nv);
+    if (!haveRoms) {
+      for (const [k, f] of Object.entries(s.files)) {
+        roms[k] = await Common.romBytes(f);
+      }
+      await kvSet('roms:' + setId, roms);
+    }
+    start();
+  } catch (e) { loader.style.display = ''; status.textContent = 'Auto-load failed: ' + e.message; }
+})();
+})();
+</script>
+</body>
+</html>

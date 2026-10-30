@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Draw 80 Poker</title>
+<link rel="stylesheet" href="theme.css">
+<style>
+  .wrap { --w: min(820px, calc(100vw - 330px), calc((100vh - 220px) * 4 / 3)); }
+</style>
+</head>
+<body>
+<div class="site-bar"><a href="index.html">&larr; Library</a><b>Draw 80 Poker</b><span class="sp"></span><small>IGT firmware emulators</small></div>
+<div class="wrap">
+  <a class="vm-back" href="index.html">&larr; Library</a>
+  <header class="vm-head"><h1 id="vm-title">Draw 80 Poker</h1></header>
+  <div class="stage">
+    <div class="game">
+      <canvas id="scr" width="192" height="216"></canvas>
+      <div class="row" style="grid-template-columns: repeat(5, 1fr)">
+        <button data-btn="hold1">Hold 1</button><button data-btn="hold2">Hold 2</button><button data-btn="hold3">Hold 3</button>
+        <button data-btn="hold4">Hold 4</button><button data-btn="hold5">Hold 5</button>
+      </div>
+      <div class="row" style="grid-template-columns: repeat(2, 1fr)">
+        <button data-btn="bet">Bet</button><button data-btn="deal" class="primary">🃏 Deal / Draw</button>
+      </div>
+      <div class="hint">1–5 hold · B bet · Space deal / draw · C coin · X key out</div>
+      <div id="status"></div>
+    </div>
+    <aside class="side">
+      <h3>Machine</h3>
+      <div class="row ops">
+        <button id="coin">🪙 Coin x1</button>
+        <button data-btn="coinB">Key In x4</button>
+        <button data-btn="coinC">Key In x20</button>
+        <button data-btn="keyout">💵 Key Out</button>
+        <button id="reset">Power Cycle</button>
+      </div>
+      <h3>DIP switches SW1</h3>
+      <div class="row dip" id="dip"></div>
+      <small>Applies after a power cycle. Click to toggle.</small>
+      <h3>Volume</h3>
+      <div class="volume"></div>
+    </aside>
+  </div>
+  <div class="info" id="info"></div>
+  <div class="paytable" id="paytable"></div>
+</div>
+
+<script src="mcs48.js"></script>
+<script src="ay8910.js"></script>
+<script src="draw80.js"></script>
+<script src="paytables.js"></script>
+<script src="common.js"></script>
+<script>
+(() => {
+'use strict';
+const { kvGet, kvSet, pushAudio, InfoPanel } = Common;
+const $ = id => document.getElementById(id);
+const cv = $('scr'), ctx = cv.getContext('2d');
+const img = ctx.createImageData(192, 216), px = new Uint32Array(img.data.buffer);
+let m = null, roms = null, setId = '';
+
+// SW1 as wired in MAME's driver: bit value, label, "on" level
+const DIPS = [['Aces', 0x01], ['Joker', 0x02], ['Dbl-Up', 0x04], ['Pay', 0x08], ['Pay', 0x10], ['Coin', 0x20], ['Coin', 0x40], ['Acc', 0x80]];
+let dsw = 0x67;
+function buildDips() {
+  const row = $('dip'); row.textContent = '';
+  DIPS.forEach(([label, bit], i) => {
+    const b = document.createElement('button'); b.textContent = (8 - i) + ' ' + label; b.classList.toggle('on', !!(dsw & bit));
+    b.onclick = () => { dsw ^= bit; b.classList.toggle('on', !!(dsw & bit)); kvSet('d80dip:' + setId, dsw); if (m) m.dsw = dsw; };
+    row.append(b);
+  });
+}
+
+const held = new Map(), pending = [];
+function press(n) { if (!m) return; m.press(n, true); held.set(n, m.frame); }
+function release(n) {
+  if (!m || !held.has(n)) return;
+  const wait = Math.max(0, 6 - (m.frame - held.get(n))); held.delete(n);
+  const f = () => { if (!held.has(n)) m.press(n, false); };
+  if (wait) pending.push([m.frame + wait, f]); else f();
+}
+document.querySelectorAll('[data-btn]').forEach(el => {
+  const n = el.dataset.btn;
+  el.addEventListener('pointerdown', e => { e.preventDefault(); el.classList.add('down'); press(n); });
+  const up = () => { el.classList.remove('down'); release(n); };
+  el.addEventListener('pointerup', up); el.addEventListener('pointerleave', up);
+});
+$('coin').onclick = () => m && m.insertCoin();
+$('reset').onclick = () => { saveNV(); boot(); };
+const keyMap = { '1': 'hold1', '2': 'hold2', '3': 'hold3', '4': 'hold4', '5': 'hold5', b: 'bet', ' ': 'deal', enter: 'deal', x: 'keyout' };
+document.addEventListener('keydown', e => {
+  const k = e.key.toLowerCase();
+  if (e.repeat) { if (keyMap[k]) e.preventDefault(); return; }
+  if (keyMap[k]) { e.preventDefault(); press(keyMap[k]); } else if (k === 'c') m && m.insertCoin();
+});
+document.addEventListener('keyup', e => { const k = e.key.toLowerCase(); if (keyMap[k]) release(keyMap[k]); });
+
+const loading = Common.screenLoading($('scr'));
+async function boot() {
+  m = new Draw80(roms);
+  m.dsw = dsw;
+  m.onAudio = pushAudio;
+  const saved = await kvGet('d80:' + setId);
+  if (saved instanceof Uint8Array && saved.length === 0x100) m.setNV(saved);
+}
+function saveNV() { if (m) kvSet('d80:' + setId, m.getNV()); }
+
+const info = new InfoPanel($('info'), () => m ? [['Machine'], ['rom', setId]].concat(m.info()) : [], () => m && { coinsIn: m.coinsIn, coinsOut: m.coinsOut });
+let last = 0, acc = 0, nSave = 0;
+function tick() {
+  if (!m) return;
+  const t = performance.now(); if (!last) last = t;
+  acc += Math.min(100, t - last); last = t;
+  let n = 0;
+  while (acc >= 1000 / 60.8 && n < 4) {
+    const t0 = performance.now();
+    m.runFrame();
+    for (let i = pending.length - 1; i >= 0; i--) if (pending[i][0] <= m.frame) { const f = pending[i][1]; pending.splice(i, 1); f(); }
+    info.tick(m.frame, performance.now() - t0);
+    acc -= 1000 / 60.8; n++;
+  }
+  if (n) { m.render(px); ctx.putImageData(img, 0, 0); loading.done(); }
+  if (++nSave % 600 === 0) saveNV();
+}
+setInterval(tick, 8);
+window.addEventListener('pagehide', saveNV);
+document.addEventListener('visibilitychange', () => { if (document.hidden) saveNV(); });
+window.onerror = (msg, src, line) => { $('status').textContent = msg + ' @' + line; };
+
+(async () => {
+  const dir = new URLSearchParams(location.search).get('dir');
+  if (!dir) { $('status').textContent = 'Open a game from the library page.'; return; }
+  try {
+    const lib = await Common.library();
+    const s = lib.draw80.find(x => x.dir === dir);
+    if (!s) throw new Error('set not found');
+    const get = async re => {
+      const f = s.files.find(x => re.test(x.split('/').pop()));
+      if (!f) throw new Error('missing ' + re);
+      return Common.romBytes(f);
+    };
+    roms = { pm: [await get(/^pm0\./i), await get(/^pm1\./i)], cg: [await get(/^cg0/i), await get(/^cg1/i)], prom: await get(/^cap/i) };
+    setId = dir; document.title = s.name;
+    Common.renderPayTable($('paytable'), Common.payMachine(dir));
+    const d = await kvGet('d80dip:' + setId); if (typeof d === 'number') dsw = d;
+    buildDips(); await boot();
+  } catch (e) { $('status').textContent = 'Auto-load failed: ' + e.message; }
+})();
+})();
+</script>
+</body>
+</html>

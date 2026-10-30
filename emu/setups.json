@@ -1,0 +1,874 @@
+{
+"Multi-Game (pemg0182)": {
+"mode": "hold",
+"game": "Multi-Game",
+"short": "pemg0182",
+"payback": null,
+"section": "Player's Edge Plus (1994-96): Montana Choice multi-game"
+},
+"Multi-Game (pemg0252)": {
+"mode": "hold",
+"game": "Multi-Game",
+"short": "pemg0252",
+"payback": null,
+"section": "Player's Choice (1987)"
+},
+"4 of a Kind Bonus Poker (pepk1015 99.20%)": {
+"mode": "tap",
+"game": "4 of a Kind Bonus Poker",
+"short": "pepk1015",
+"payback": 99.2,
+"section": "Player's Edge, original board (1987)"
+},
+"Aces and Faces Bonus Poker (pepk1024 99.30%)": {
+"mode": "tap",
+"game": "Aces and Faces Bonus Poker",
+"short": "pepk1024",
+"payback": 99.3,
+"section": "Player's Edge, original board (1987)"
+},
+"Deuces Wild Poker (pepk0885 101.20%)": {
+"mode": "tap",
+"game": "Deuces Wild Poker",
+"short": "pepk0885",
+"payback": 101.2,
+"section": "Player's Edge, original board (1987)"
+},
+"Double Bonus Poker (pepk1069 99.10%)": {
+"mode": "tap",
+"game": "Double Bonus Poker",
+"short": "pepk1069",
+"payback": 99.1,
+"section": "Player's Edge, original board (1987)"
+},
+"Jake's Jacks Bonus Poker (pepk1002 99.10%)": {
+"mode": "tap",
+"game": "Jake's Jacks Bonus Poker",
+"short": "pepk1002",
+"payback": 99.1,
+"section": "Player's Edge, original board (1987)"
+},
+"Joker Poker (pepk0832 100.60%)": {
+"mode": "tap",
+"game": "Joker Poker",
+"short": "pepk0832",
+"payback": 100.6,
+"section": "Player's Edge, original board (1987)"
+},
+"Joker Poker (Two Pair or Better) (pepk0849 101.20%)": {
+"mode": "tap",
+"game": "Joker Poker (Two Pair or Better)",
+"short": "pepk0849",
+"payback": 101.2,
+"section": "Player's Edge, original board (1987)"
+},
+"Standard Draw Poker (pepk0719 99.50%)": {
+"mode": "tap",
+"game": "Standard Draw Poker",
+"short": "pepk0719",
+"payback": 99.5,
+"section": "Player's Edge, original board (1987)"
+},
+"Tens or Better (pepk1013 97.90%)": {
+"mode": "hold",
+"setchip": true,
+"game": "Tens or Better",
+"short": "pepk1013",
+"payback": 97.9,
+"section": "Player's Edge, original board (1987)"
+},
+"Two Pair or Better (pepk0757 93.50%)": {
+"mode": "tap",
+"game": "Two Pair or Better",
+"short": "pepk0757",
+"payback": 93.5,
+"section": "Player's Edge, original board (1987)"
+},
+"10's or Better (pekoc801 89.20%)": {
+"mode": "hold",
+"setchip": true,
+"game": "10's or Better",
+"short": "pekoc801",
+"payback": 89.2,
+"section": "Player's Edge Plus (1994-96): Poker (KOC)"
+},
+"10's or Better (pepp0023 97.30%)": {
+"mode": "tap",
+"game": "10's or Better",
+"short": "pepp0023",
+"payback": 97.3,
+"section": "Player's Edge Plus (1987)"
+},
+"10's or Better (pex0042p 90.80%)": {
+"mode": "hold",
+"game": "10's or Better",
+"short": "pex0042p",
+"payback": 90.8,
+"section": "Superboard (1995)"
+},
+"4 of a Kind Bonus Poker (Operator selectable special 4 of a  (pepp0178)": {
+"mode": "tap",
+"game": "4 of a Kind Bonus Poker (Operator selectable special 4 of a Kind)",
+"short": "pepp0178",
+"payback": null,
+"section": "Player's Edge Plus (1987)"
+},
+"4 of a Kind Bonus Poker (pepp0158 99.20%)": {
+"mode": "both",
+"game": "4 of a Kind Bonus Poker",
+"short": "pepp0158",
+"payback": 99.2,
+"section": "Player's Edge Plus (1987)"
+},
+"4 of a Kind Bonus Poker (pex0158p 99.20%)": {
+"mode": "hold",
+"game": "4 of a Kind Bonus Poker",
+"short": "pex0158p",
+"payback": 99.2,
+"section": "Superboard (1995)"
+},
+"4 of a Kind Bonus Poker (with Seq Royal Flush) (pex2111p 98.60%)": {
+"mode": "hold",
+"game": "4 of a Kind Bonus Poker (with Seq Royal Flush)",
+"short": "pex2111p",
+"payback": 98.6,
+"section": "Superboard (1995)"
+},
+"4th of July Slots (peps0278 94.95%)": {
+"mode": "tap",
+"game": "4th of July Slots",
+"short": "peps0278",
+"payback": 94.95,
+"section": "Player's Edge Plus (1994-96): Slots"
+},
+"Ace$ Bonus (pex2279p 98.80%)": {
+"mode": "hold",
+"game": "Ace$ Bonus",
+"short": "pex2279p",
+"payback": 98.8,
+"section": "Superboard (1995)"
+},
+"Ace$ Bonus Poker (pex2046p 99.40%)": {
+"mode": "hold",
+"game": "Ace$ Bonus Poker",
+"short": "pex2046p",
+"payback": 99.4,
+"section": "Superboard (1995)"
+},
+"Aces and Faces Bonus Joker Poker (pepp0294)": {
+"mode": "tap",
+"game": "Aces and Faces Bonus Joker Poker",
+"short": "pepp0294",
+"payback": null,
+"section": "Player's Edge Plus (1987)"
+},
+"Barbaric Decues Wild Poker (pex2283p 98.60%)": {
+"mode": "hold",
+"game": "Barbaric Decues Wild Poker",
+"short": "pex2283p",
+"payback": 98.6,
+"section": "Superboard (1995)"
+},
+"Black Cherry Slots (peps0623 90.04%)": {
+"mode": "both",
+"game": "Black Cherry Slots",
+"short": "peps0623",
+"payback": 90.04,
+"section": "Player's Edge Plus (1994-96): Slots"
+},
+"Black Jack Bonus Poker (pex2272p 99.40%)": {
+"mode": "hold",
+"game": "Black Jack Bonus Poker",
+"short": "pex2272p",
+"payback": 99.4,
+"section": "Superboard (1995)"
+},
+"Blackjack (pebe0013 98.30%)": {
+"mode": "tap",
+"game": "Blackjack",
+"short": "pebe0013",
+"payback": 98.3,
+"section": "Player's Edge Plus (1994-96): Blackjack"
+},
+"Blackjack Poker (pex2152p 98.90%)": {
+"mode": "hold",
+"game": "Blackjack Poker",
+"short": "pex2152p",
+"payback": 98.9,
+"section": "Superboard (1995)"
+},
+"Bonus Poker Deluxe (pekoc804 96.30%)": {
+"mode": "hold",
+"setchip": true,
+"game": "Bonus Poker Deluxe",
+"short": "pekoc804",
+"payback": 96.3,
+"section": "Player's Edge Plus (1994-96): Poker (KOC)"
+},
+"Bonus Poker Deluxe (pepp0434 98.50%)": {
+"mode": "both",
+"game": "Bonus Poker Deluxe",
+"short": "pepp0434",
+"payback": 98.5,
+"section": "Player's Edge Plus (1987)"
+},
+"Bonus Poker Deluxe (pex0434p 98.50%)": {
+"mode": "hold",
+"game": "Bonus Poker Deluxe",
+"short": "pex0434p",
+"payback": 98.5,
+"section": "Superboard (1995)"
+},
+"Deuces Joker Wild Poker (pepp0127 99.10%)": {
+"mode": "both",
+"setchip": true,
+"game": "Deuces Joker Wild Poker",
+"short": "pepp0127",
+"payback": 99.1,
+"section": "Player's Edge Plus (1987)"
+},
+"Deuces Joker Wild Poker (pex0127p 99.10%)": {
+"mode": "hold",
+"game": "Deuces Joker Wild Poker",
+"short": "pex0127p",
+"payback": 99.1,
+"section": "Superboard (1995)"
+},
+"Deuces Wild Bonus Poker (pex2025p 99.50%)": {
+"mode": "hold",
+"game": "Deuces Wild Bonus Poker",
+"short": "pex2025p",
+"payback": 99.5,
+"section": "Superboard (1995)"
+},
+"Deuces Wild Poker (Horseshoe) (pex0057pc 100.80%)": {
+"mode": "hold",
+"game": "Deuces Wild Poker (Horseshoe)",
+"short": "pex0057pc",
+"payback": 100.8,
+"section": "Superboard (1995)"
+},
+"Deuces Wild Poker (pepp0057 100.80%)": {
+"mode": "both",
+"setchip": true,
+"game": "Deuces Wild Poker",
+"short": "pepp0057",
+"payback": 100.8,
+"section": "Player's Edge Plus (1987)"
+},
+"Deuces Wild Poker (pex0057p 100.80%)": {
+"mode": "hold",
+"game": "Deuces Wild Poker",
+"short": "pex0057p",
+"payback": 100.8,
+"section": "Superboard (1995)"
+},
+"Deuces Wild Poker (Stratosphere Players Club) (pex0057pf 100.80%)": {
+"mode": "hold",
+"game": "Deuces Wild Poker (Stratosphere Players Club)",
+"short": "pex0057pf",
+"payback": 100.8,
+"section": "Superboard (1995)"
+},
+"Deuces Wild Poker (The Orleans) (pex0057pa 100.80%)": {
+"mode": "hold",
+"game": "Deuces Wild Poker (The Orleans)",
+"short": "pex0057pa",
+"payback": 100.8,
+"section": "Superboard (1995)"
+},
+"Double Bonus Poker (pepp0515 100.20%)": {
+"mode": "both",
+"game": "Double Bonus Poker",
+"short": "pepp0515",
+"payback": 100.2,
+"section": "Player's Edge Plus (1987)"
+},
+"Double Bonus Poker (pex0515p 100.20%)": {
+"mode": "hold",
+"game": "Double Bonus Poker",
+"short": "pex0515p",
+"payback": 100.2,
+"section": "Superboard (1995)"
+},
+"Double Bonus Poker featuring 'Your Property' Royals (pex2127p 99.50%)": {
+"mode": "hold",
+"game": "Double Bonus Poker featuring 'Your Property' Royals",
+"short": "pex2127p",
+"payback": 99.5,
+"section": "Superboard (1995)"
+},
+"Double Cherry Bar Slots (peps0708 94.99%)": {
+"mode": "both",
+"game": "Double Cherry Bar Slots",
+"short": "peps0708",
+"payback": 94.99,
+"section": "Player's Edge Plus (1994-96): Slots"
+},
+"Double Deuces Wild Poker (pepp0452 99.60%)": {
+"mode": "both",
+"setchip": true,
+"game": "Double Deuces Wild Poker",
+"short": "pepp0452",
+"payback": 99.6,
+"section": "Player's Edge Plus (1987)"
+},
+"Double Deuces Wild Poker (pex0452p 99.60%)": {
+"mode": "hold",
+"game": "Double Deuces Wild Poker",
+"short": "pex0452p",
+"payback": 99.6,
+"section": "Superboard (1995)"
+},
+"Double Diamond Deluxe Slots (peps0366 94.99%)": {
+"mode": "tap",
+"game": "Double Diamond Deluxe Slots",
+"short": "peps0366",
+"payback": 94.99,
+"section": "Player's Edge Plus (1994-96): Slots"
+},
+"Double Diamond Slots (peps0042 92.58%)": {
+"mode": "tap",
+"game": "Double Diamond Slots",
+"short": "peps0042",
+"payback": 92.58,
+"section": "Player's Edge Plus (1994-96): Slots"
+},
+"Double Double Bonus Plus (pex2474p 98.10%)": {
+"mode": "tap",
+"setchip": true,
+"game": "Double Double Bonus Plus",
+"short": "pex2474p",
+"payback": 98.1,
+"section": "Superboard (1995)"
+},
+"Double Double Bonus Poker (pex2066p 99.00%)": {
+"mode": "hold",
+"game": "Double Double Bonus Poker",
+"short": "pex2066p",
+"payback": 99.0,
+"section": "Superboard (1995)"
+},
+"Double Double Bonus with 3 Aces Poker (pex2236p 98.30%)": {
+"mode": "hold",
+"game": "Double Double Bonus with 3 Aces Poker",
+"short": "pex2236p",
+"payback": 98.3,
+"section": "Superboard (1995)"
+},
+"Double Double Bonus with 3 Jacks Poker (pex2211p 98.30%)": {
+"mode": "hold",
+"game": "Double Double Bonus with 3 Jacks Poker",
+"short": "pex2211p",
+"payback": 98.3,
+"section": "Superboard (1995)"
+},
+"Double Down Stud Joker Poker (pepp0757 94.30%)": {
+"mode": "both",
+"game": "Double Down Stud Joker Poker",
+"short": "pepp0757",
+"payback": 94.3,
+"section": "Player's Edge Plus (1987)"
+},
+"Double Down Stud Poker (pepp0250 98.30%)": {
+"mode": "both",
+"setchip": true,
+"game": "Double Down Stud Poker",
+"short": "pepp0250",
+"payback": 98.3,
+"section": "Player's Edge Plus (1987)"
+},
+"Double Hot Peppers Slots (peps0629 94.99%)": {
+"mode": "both",
+"game": "Double Hot Peppers Slots",
+"short": "peps0629",
+"payback": 94.99,
+"section": "Player's Edge Plus (1994-96): Slots"
+},
+"Double Jackpot Slots (peps0308 90.10%)": {
+"mode": "tap",
+"game": "Double Jackpot Slots",
+"short": "peps0308",
+"payback": 90.1,
+"section": "Player's Edge Plus (1994-96): Slots"
+},
+"Faces 'n' Deuces Double Bonus Poker (pex2134p 98.70%)": {
+"mode": "hold",
+"game": "Faces 'n' Deuces Double Bonus Poker",
+"short": "pex2134p",
+"payback": 98.7,
+"section": "Superboard (1995)"
+},
+"Five Times Pay Slots (pex0841s 92.51%)": {
+"mode": "hold",
+"game": "Five Times Pay Slots",
+"short": "pex0841s",
+"payback": 92.51,
+"section": "Superboard (1995)"
+},
+"Full House Bonus Poker (pex2016p 99.40%)": {
+"mode": "hold",
+"game": "Full House Bonus Poker",
+"short": "pex2016p",
+"payback": 99.4,
+"section": "Superboard (1995)"
+},
+"Gold, Silver & Bronze Slots (peps0090 90.19%)": {
+"mode": "tap",
+"game": "Gold, Silver & Bronze Slots",
+"short": "peps0090",
+"payback": 90.19,
+"section": "Player's Edge Plus (1994-96): Slots"
+},
+"Haywire Slots (peps0291 92.43%)": {
+"mode": "tap",
+"game": "Haywire Slots",
+"short": "peps0291",
+"payback": 92.43,
+"section": "Player's Edge Plus (1994-96): Slots"
+},
+"Hearts Sequential Royal Double Bonus Poker (pepp0598 96.30%)": {
+"mode": "hold",
+"setchip": true,
+"game": "Hearts Sequential Royal Double Bonus Poker",
+"short": "pepp0598",
+"payback": 96.3,
+"section": "Player's Edge Plus (1987)"
+},
+"Hurricane Slots (peps0070 90.19%)": {
+"mode": "tap",
+"game": "Hurricane Slots",
+"short": "peps0070",
+"payback": 90.19,
+"section": "Player's Edge Plus (1994-96): Slots"
+},
+"Jackpot Jewels Slots (peps0239 92.65%)": {
+"mode": "both",
+"game": "Jackpot Jewels Slots",
+"short": "peps0239",
+"payback": 92.65,
+"section": "Player's Edge Plus (1994-96): Slots"
+},
+"Jackpot Jungle Slots (peps0040 92.52%)": {
+"mode": "tap",
+"game": "Jackpot Jungle Slots",
+"short": "peps0040",
+"payback": 92.52,
+"section": "Player's Edge Plus (1994-96): Slots"
+},
+"Jackpot Poker (pex2297p 99.70%)": {
+"mode": "hold",
+"game": "Jackpot Poker",
+"short": "pex2297p",
+"payback": 99.7,
+"section": "Superboard (1995)"
+},
+"Joker Poker (Aces or Better) (pekoc818 87.60%)": {
+"mode": "hold",
+"setchip": true,
+"game": "Joker Poker (Aces or Better)",
+"short": "pekoc818",
+"payback": 87.6,
+"section": "Player's Edge Plus (1994-96): Poker (KOC)"
+},
+"Joker Poker (Aces or Better) (pepp0053 94.60%)": {
+"mode": "both",
+"game": "Joker Poker (Aces or Better)",
+"short": "pepp0053",
+"payback": 94.6,
+"section": "Player's Edge Plus (1987)"
+},
+"Joker Poker (Aces or Better) (pex0053p 94.60%)": {
+"mode": "hold",
+"game": "Joker Poker (Aces or Better)",
+"short": "pex0053p",
+"payback": 94.6,
+"section": "Superboard (1995)"
+},
+"Joker Poker (pekoc803 95.50%)": {
+"mode": "hold",
+"setchip": true,
+"game": "Joker Poker",
+"short": "pekoc803",
+"payback": 95.5,
+"section": "Player's Edge Plus (1994-96): Poker (KOC)"
+},
+"Joker Poker (pepp0050 100.60%)": {
+"mode": "both",
+"game": "Joker Poker",
+"short": "pepp0050",
+"payback": 100.6,
+"section": "Player's Edge Plus (1987)"
+},
+"Joker Poker (pex0588p 100.20%)": {
+"mode": "hold",
+"game": "Joker Poker",
+"short": "pex0588p",
+"payback": 100.2,
+"section": "Superboard (1995)"
+},
+"Joker Poker (Two Pair or Better) (pepp0085 97.20%)": {
+"mode": "both",
+"game": "Joker Poker (Two Pair or Better)",
+"short": "pepp0085",
+"payback": 97.2,
+"section": "Player's Edge Plus (1987)"
+},
+"Joker Poker (Two Pair or Better) (pex2240p 99.60%)": {
+"mode": "hold",
+"game": "Joker Poker (Two Pair or Better)",
+"short": "pex2240p",
+"payback": 99.6,
+"section": "Superboard (1995)"
+},
+"Joker's Revenge Poker (pex2143p 97.50%)": {
+"mode": "hold",
+"game": "Joker's Revenge Poker",
+"short": "pex2143p",
+"payback": 97.5,
+"section": "Superboard (1995)"
+},
+"Keno (peke0004 92.55%)": {
+"mode": "tap",
+"game": "Keno",
+"short": "peke0004",
+"payback": 92.552,
+"section": "Player's Edge Plus (1994-96): Keno"
+},
+"Keno (pex0006k)": {
+"mode": "both",
+"game": "Keno",
+"short": "pex0006k",
+"payback": null,
+"section": "Superboard (1995)"
+},
+"Loose Deuce Deuces Wild! Poker (pepp0450 101.60%)": {
+"mode": "hold",
+"game": "Loose Deuce Deuces Wild! Poker",
+"short": "pepp0450",
+"payback": 101.6,
+"section": "Player's Edge Plus (1987)"
+},
+"Loose Deuce Deuces Wild! Poker (pex0508p 99.20%)": {
+"mode": "hold",
+"game": "Loose Deuce Deuces Wild! Poker",
+"short": "pex0508p",
+"payback": 99.2,
+"section": "Superboard (1995)"
+},
+"Lucky Deal Poker (pex2021p 98.20%)": {
+"mode": "hold",
+"game": "Lucky Deal Poker",
+"short": "pex2021p",
+"payback": 98.2,
+"section": "Superboard (1995)"
+},
+"Multi-Poker (pexm001p)": {
+"mode": "hold",
+"game": "Multi-Poker",
+"short": "pexm001p",
+"payback": null,
+"section": "Superboard (1995): Multi-Poker"
+},
+"Multi-Poker (The Orleans) (pexm006pa)": {
+"mode": "hold",
+"game": "Multi-Poker (The Orleans)",
+"short": "pexm006pa",
+"payback": null,
+"section": "Superboard (1995): Multi-Poker"
+},
+"Nevada Bonus Poker (pex2037p 99.80%)": {
+"mode": "hold",
+"game": "Nevada Bonus Poker",
+"short": "pex2037p",
+"payback": 99.8,
+"section": "Superboard (1995)"
+},
+"No Faces Pay the Aces Poker (pex2287p 98.40%)": {
+"mode": "hold",
+"game": "No Faces Pay the Aces Poker",
+"short": "pex2287p",
+"payback": 98.4,
+"section": "Superboard (1995)"
+},
+"One Eyed Jacks Wild Poker (pepp0542 98.80%)": {
+"mode": "tap",
+"setchip": true,
+"game": "One Eyed Jacks Wild Poker",
+"short": "pepp0542",
+"payback": 98.8,
+"section": "Player's Edge Plus (1987)"
+},
+"Patriot Poker (pepp0232 99.50%)": {
+"mode": "tap",
+"game": "Patriot Poker",
+"short": "pepp0232",
+"payback": 99.5,
+"section": "Player's Edge Plus (1987)"
+},
+"Red White & Blue Slots (peps0021 92.51%)": {
+"mode": "tap",
+"game": "Red White & Blue Slots",
+"short": "peps0021",
+"payback": 92.51,
+"section": "Player's Edge Plus (1994-96): Slots"
+},
+"Red, White & Blue Slots (pex0827s 87.48%)": {
+"mode": "hold",
+"game": "Red, White & Blue Slots",
+"short": "pex0827s",
+"payback": 87.48,
+"section": "Superboard (1995)"
+},
+"River Gambler Slots (peps0716 95.00%)": {
+"mode": "both",
+"game": "River Gambler Slots",
+"short": "peps0716",
+"payback": 95.0,
+"section": "Player's Edge Plus (1994-96): Slots"
+},
+"Shockwave Poker (pex2251p 99.60%)": {
+"mode": "hold",
+"game": "Shockwave Poker",
+"short": "pex2251p",
+"payback": 99.6,
+"section": "Superboard (1995)"
+},
+"Sizzling Sevens Slots (peps0425 92.61%)": {
+"mode": "tap",
+"game": "Sizzling Sevens Slots",
+"short": "peps0425",
+"payback": 92.61,
+"section": "Player's Edge Plus (1994-96): Slots"
+},
+"Spades Sequential Royal Double Bonus Poker (pepp0596 96.30%)": {
+"mode": "hold",
+"setchip": true,
+"game": "Spades Sequential Royal Double Bonus Poker",
+"short": "pepp0596",
+"payback": 96.3,
+"section": "Player's Edge Plus (1987)"
+},
+"Standard Draw Poker (Arizona Charlie's) (pepp0488 102.40%)": {
+"mode": "tap",
+"game": "Standard Draw Poker (Arizona Charlie's)",
+"short": "pepp0488",
+"payback": 102.4,
+"section": "Player's Edge Plus (1987)"
+},
+"Standard Draw Poker (Cruise) (pepp0197e 97.80%)": {
+"mode": "both",
+"game": "Standard Draw Poker (Cruise)",
+"short": "pepp0197e",
+"payback": 97.8,
+"section": "Player's Edge Plus (1987)"
+},
+"Standard Draw Poker (Mirage) (pepp0116a 97.80%)": {
+"mode": "tap",
+"game": "Standard Draw Poker (Mirage)",
+"short": "pepp0116a",
+"payback": 97.8,
+"section": "Player's Edge Plus (1987)"
+},
+"Standard Draw Poker (pc644vz)": {
+"mode": "hold",
+"setchip": true,
+"game": "Standard Draw Poker",
+"short": "pc644vz",
+"payback": null,
+"section": "Player's Choice (1987)"
+},
+"Standard Draw Poker (pekoc822 100.10%)": {
+"mode": "hold",
+"setchip": true,
+"game": "Standard Draw Poker",
+"short": "pekoc822",
+"payback": 100.1,
+"section": "Player's Edge Plus (1994-96): Poker (KOC)"
+},
+"Standard Draw Poker (pepp0006 100.10%)": {
+"mode": "both",
+"game": "Standard Draw Poker",
+"short": "pepp0006",
+"payback": 100.1,
+"section": "Player's Edge Plus (1987)"
+},
+"Standard Draw Poker (pex0006p 100.10%)": {
+"mode": "hold",
+"game": "Standard Draw Poker",
+"short": "pex0006p",
+"payback": 100.1,
+"section": "Superboard (1995)"
+},
+"Standard Draw with 5 decks (Two Pair or Better) (pex2412p 97.70%)": {
+"mode": "hold",
+"game": "Standard Draw with 5 decks (Two Pair or Better)",
+"short": "pex2412p",
+"payback": 97.7,
+"section": "Superboard (1995)"
+},
+"Super Aces Poker (pex2374p 97.80%)": {
+"mode": "hold",
+"game": "Super Aces Poker",
+"short": "pex2374p",
+"payback": 97.8,
+"section": "Superboard (1995)"
+},
+"Super Deuces Wild Poker (pepp0295)": {
+"mode": "tap",
+"game": "Super Deuces Wild Poker",
+"short": "pepp0295",
+"payback": null,
+"section": "Player's Edge Plus (1987)"
+},
+"Super Double Bonus Poker (pex2376p 99.70%)": {
+"mode": "hold",
+"game": "Super Double Bonus Poker",
+"short": "pex2376p",
+"payback": 99.7,
+"section": "Superboard (1995)"
+},
+"Super Joker Slots (peps0015 92.58%)": {
+"mode": "tap",
+"game": "Super Joker Slots",
+"short": "peps0015",
+"payback": 92.58,
+"section": "Player's Edge Plus (1994-96): Slots"
+},
+"Triple Bonus Poker (pex2042p 99.60%)": {
+"mode": "hold",
+"game": "Triple Bonus Poker",
+"short": "pex2042p",
+"payback": 99.6,
+"section": "Superboard (1995)"
+},
+"Triple Bonus Poker Plus (pex2312p 98.70%)": {
+"mode": "hold",
+"game": "Triple Bonus Poker Plus",
+"short": "pex2312p",
+"payback": 98.7,
+"section": "Superboard (1995)"
+},
+"Triple Diamond Slots (peps0470 90.02%)": {
+"mode": "tap",
+"game": "Triple Diamond Slots",
+"short": "peps0470",
+"payback": 90.02,
+"section": "Player's Edge Plus (1994-96): Slots"
+},
+"Triple Double Bonus Poker (pex2306p 99.60%)": {
+"mode": "hold",
+"game": "Triple Double Bonus Poker",
+"short": "pex2306p",
+"payback": 99.6,
+"section": "Superboard (1995)"
+},
+"Triple Triple Diamond Slots (pex0998s 92.47%)": {
+"mode": "hold",
+"game": "Triple Triple Diamond Slots",
+"short": "pex0998s",
+"payback": 92.47,
+"section": "Superboard (1995)"
+},
+"Two Pair or Better (pepp0059 93.50%)": {
+"mode": "both",
+"game": "Two Pair or Better",
+"short": "pepp0059",
+"payback": 93.5,
+"section": "Player's Edge Plus (1987)"
+},
+"White Hot Aces (pekoc825 95.40%)": {
+"mode": "hold",
+"setchip": true,
+"game": "White Hot Aces",
+"short": "pekoc825",
+"payback": 95.4,
+"section": "Player's Edge Plus (1994-96): Poker (KOC)"
+},
+"White Hot Aces Poker (pex2033p 99.60%)": {
+"mode": "hold",
+"game": "White Hot Aces Poker",
+"short": "pex2033p",
+"payback": 99.6,
+"section": "Superboard (1995)"
+},
+"Wild Cherry Slots (peps0047 90.20%)": {
+"mode": "tap",
+"game": "Wild Cherry Slots",
+"short": "peps0047",
+"payback": 90.2,
+"section": "Player's Edge Plus (1994-96): Slots"
+},
+"Wild Sevens Poker (pepp0120 97.10%)": {
+"mode": "both",
+"game": "Wild Sevens Poker",
+"short": "pepp0120",
+"payback": 97.1,
+"section": "Player's Edge Plus (1987)"
+},
+"Wild Star Red White & Blue Slots (peps0358 94.98%)": {
+"mode": "tap",
+"game": "Wild Star Red White & Blue Slots",
+"short": "peps0358",
+"payback": 94.98,
+"section": "Player's Edge Plus (1994-96): Slots"
+},
+"Multi-Game (pemg0183)": {
+"mode": "tap",
+"game": "Multi-Game",
+"short": "pemg0183",
+"payback": null,
+"section": "Player's Edge Plus (1994-96): Montana Choice multi-game"
+},
+"Tens or Better (pepk0785 90.80%)": {
+"mode": "tap",
+"game": "Tens or Better",
+"short": "pepk0785",
+"payback": 90.8,
+"section": "Player's Edge, original board (1987)"
+},
+"Loose Deuce Deuces Wild! Poker (pepp0508 99.20%)": {
+"mode": "both",
+"setchip": true,
+"game": "Loose Deuce Deuces Wild! Poker",
+"short": "pepp0508",
+"payback": 99.2,
+"section": "Player's Edge Plus (1987)"
+},
+"Standard Draw Poker (pc714vz)": {
+"mode": "hold",
+"setchip": true,
+"game": "Standard Draw Poker",
+"short": "pc714vz",
+"payback": null,
+"section": "Player's Choice (1987)"
+},
+"Standard Draw Poker (pc716vy)": {
+"mode": "hold",
+"setchip": true,
+"game": "Standard Draw Poker",
+"short": "pc716vy",
+"payback": null,
+"section": "Player's Choice (1987)"
+},
+"Standard Draw Poker (pc718vy)": {
+"mode": "hold",
+"setchip": true,
+"game": "Standard Draw Poker",
+"short": "pc718vy",
+"payback": null,
+"section": "Player's Choice (1987)"
+},
+"Draw 80 Poker (Minn) (drw80pkr)": {
+"game": "Draw 80 Poker (Minn)",
+"short": "drw80pkr",
+"year": "1983",
+"section": "Early (1982-85)"
+},
+"Wild 1 (Quick Change Kit) (drw80wld)": {
+"game": "Wild 1 (Quick Change Kit)",
+"short": "drw80wld",
+"year": "1982",
+"section": "Early (1982-85)"
+}
+}
