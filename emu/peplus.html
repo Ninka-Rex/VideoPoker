@@ -230,6 +230,10 @@ $('loader').ondrop = e => { e.preventDefault(); addFiles(e.dataTransfer.files); 
 (async () => {
   const want = new URLSearchParams(location.search).get('set');
   if (!want) return;
+  // opened from the library: say it is loading, not asking for files; the drop prompt only returns if loading fails
+  const hint = loader.querySelectorAll('.box > small, .box > br');
+  const dropMsg = $('msg').textContent;
+  $('msg').textContent = 'Loading ROMs…'; hint.forEach(e => e.style.display = 'none');
   try {
     const lib = await Common.library();
     const s = lib.peplus.find(x => x.dir + '/' + x.prog === want);
@@ -246,7 +250,7 @@ $('loader').ondrop = e => { e.preventDefault(); addFiles(e.dataTransfer.files); 
       setRoms = buildPEPlusRoms(sf);
     }
     await start(files, s.name, want, { mode: s.mode, setchip: !!s.setchip, setRoms });
-  } catch (e) { status.textContent = 'Auto-load failed: ' + e.message; }
+  } catch (e) { $('msg').textContent = dropMsg; hint.forEach(e => e.style.display = ''); status.textContent = 'Auto-load failed: ' + e.message; }
 })();
 })();
 </script>
